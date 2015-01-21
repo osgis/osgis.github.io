@@ -1,0 +1,158 @@
+﻿<!doctype html>
+<html>
+
+<head>
+    <title>Leaflet GroupedLayerControl</title>
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">
+    <link rel="stylesheet" href="assets/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.css">
+
+    <style type="text/css">
+        html,
+        body,
+        #map {
+            margin: 0px;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="assets/jquery-1.11.1.min.js"></script>
+    <script src="assets/leaflet-0.7.3/leaflet.js"></script>
+    <script src="assets/leaflet.groupedlayercontrol/leaflet.groupedlayercontrol.js"></script>
+
+    <script>
+        var BingLayer = L.TileLayer.extend({
+            getTileUrl: function(tilePoint) {
+                this._adjustTilePoint(tilePoint);
+                return L.Util.template(this._url, {
+                    s: this._getSubdomain(tilePoint),
+                    q: this._quadKey(tilePoint.x, tilePoint.y, this._getZoomForUrl())
+                });
+            },
+            _quadKey: function(x, y, z) {
+                var quadKey = [];
+                for (var i = z; i > 0; i--) {
+                    var digit = '0';
+                    var mask = 1 << (i - 1);
+                    if ((x & mask) != 0) {
+                        digit++;
+                    }
+                    if ((y & mask) != 0) {
+                        digit++;
+                        digit++;
+                    }
+                    quadKey.push(digit);
+                }
+                return quadKey.join('');
+            }
+        });
+
+
+
+        var layerBA = new BingLayer('http://t{s}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=2732', {
+            maxZoom: 19,
+            subdomains: ['0', '1', '2', '3', '4'],
+            attribution: '&copy; <a href="http://bing.com/maps">Bing Maps</a>'
+        });
+
+        var layerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            zIndex: -1,
+            attribution: '&copy; Map Data <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var layerMapQuestOSM = L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            zIndex: -1,
+            subdomains: ["otile1", "otile2", "otile3", "otile4"],
+            attribution: '&copy; Tiles courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. &copy; Map data <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors'
+        });
+
+        var layerTFL = L.tileLayer('http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            zIndex: -1,
+            attribution: '&copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a>, &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        });
+
+        var layerMSHyb = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/hybrid/x={x}&y={y}&z={z}', {
+            maxZoom: 19,
+            zIndex: -1,
+            attribution: 'Data &copy; <a href="http://www.openstreetmap.org/copyright/en">OSM</a> contributors (ODbL), rendering ' +
+                '<a href="http://giscience.uni-hd.de/" target="_blank">GIScience Research Group @ University of Heidelberg</a>'
+
+        });
+
+        var layerMapBoxImagery = L.tileLayer('http://{s}.tiles.mapbox.com/v4/openstreetmap.map-inh7ifmo/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoib3BlbnN0cmVldG1hcCIsImEiOiJhNVlHd29ZIn0.ti6wATGDWOmCnCYen-Ip7Q', {
+            maxZoom: 17,
+            zIndex: -1,
+            attribution: 'Data &copy; <a href="http://www.openstreetmap.org/copyright/en">OSM</a> contributors (ODbL), rendering ' +
+                '<a href="http://giscience.uni-hd.de/" target="_blank">GIScience Research Group @ University of Heidelberg</a>'
+        });
+
+        var layerHikeBike = L.tileLayer('http://{s}.hikebike.gpsies.com/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="http://hikebikemap.org/">HikeBikeMap</a>, &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        });
+
+        var layerOSMTopo = L.tileLayer('http://opentopomap.org/{z}/{x}/{y}.png', {
+            maxZoom: 16,
+            zIndex: -1,
+            attribution: 'Map Data: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>-Mitwirkende, <a href="http://viewfinderpanoramas.org">SRTM</a> | Display Map: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        });
+
+        var layerEmpty = L.tileLayer('assets/img/blank.png', {
+            maxZoom: 19,
+            zIndex: -1,
+        });
+
+        var layerOSMGPSTrack = L.tileLayer('http://{s}.gps-tile.openstreetmap.org/lines/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            zIndex: 1000,
+            attribution: '&copy; Tracks <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+
+        var map = new L.Map('map', {
+            minZoom: 13,
+            maxZoom: 19,
+            layers: [layerHikeBike]
+        }).setView([50.0658, 35.1658], 14);
+
+        var baseLayers = {
+            "HikeBike Map": layerHikeBike,
+            "Thunderforest Landscape": layerTFL,
+            "MapBox Imagery": layerMapBoxImagery,
+            "OpenStreetMap": layerOSM,
+            "MapQuest OSM": layerMapQuestOSM,
+            "OpenTopoMap": layerOSMTopo,
+            "Bing Aerial": layerBA,
+            "Empty Layer": layerEmpty
+        };
+
+		
+	    var LayerControlBase = L.control.groupedLayers(baseLayers, {}, {
+            collapsed: false
+        });	
+		
+		
+        var LayerControlServices = L.control.groupedLayers({}, {}, {
+            collapsed: false
+        });
+        LayerControlServices.addOverlay(layerOSMGPSTrack, "OSM GPS Tracks", "Custom Layers");
+		
+		
+		
+		LayerControlBase.addTo(map);		
+		LayerControlServices.addTo(map);
+		
+		
+		$('.leaflet-top.leaflet-right .leaflet-control-layers').css('width', '178px');
+    </script>
+
+</body>
+
+</html>
