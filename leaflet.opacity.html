@@ -1,0 +1,376 @@
+﻿<!doctype html>
+<html>
+
+<head>
+    <title>Leaflet Opacity Example For Several Layers</title>
+
+    <link rel="stylesheet" href="assets/bootstrap-3.3.1/css/bootstrap.css">
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">
+
+
+    <style type="text/css">
+        html,
+        body,
+        #container {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        body {
+            padding-top: 50px;
+        }
+        .navbar .navbar-brand {
+            font-weight: bold;
+            font-size: 25px;
+            color: #EDDCC0;
+        }
+        #map {
+            position: absolute;
+            margin: 0px;
+            padding: 0;
+            height: 95%;
+            width: 100%;
+        }
+        .range {
+            position: absolute;
+            width: 100%;
+            right: 0px;
+            top: 55px;
+        }
+        .leaflet-top .leaflet-control-zoom {
+            top: 20px;
+        }
+        .leaflet-top.leaflet-right .leaflet-control-layers {
+            margin-top: 25px;
+        }
+        div.infobox {
+            padding: 20px;
+            position: absolute;
+            display: inline-block;
+            -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 0 4px 2px;
+            -moz-box-shadow: rgba(0, 0, 0, 0.2) 0 0 4px 2px;
+            box-shadow: rgba(0, 0, 0, 0.2) 0 0 4px 2px;
+            background: white;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            -ms-border-radius: 4px;
+            -o-border-radius: 4px;
+            border-radius: 4px;
+            border: 1px solid #999999;
+            text-align: left;
+            z-index: 5;
+        }
+        #layer_selector {
+            position: relative;
+            float: right;
+            padding: 0;
+            margin: 25px 10px 0 10px;
+            width: 290px;
+        }
+        #layer_selector ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        #layer_selector li {
+            border-bottom: 1px solid #999;
+            padding: 7px 30px;
+            font-family: "Helvetica", Arial;
+            font-size: 13px;
+            font-weight: normal;
+            color: #000;
+            cursor: auto;
+            background-color: #fff;
+        }
+        #layer_selector li:hover {
+            background-color: #F0F0F0;
+            cursor: pointer;
+        }
+        #layer_selector li.selected {
+            background-color: #EEE;
+            font-weight: bold;
+        }
+		
+		
+		
+.ui-opacity {
+  background:#FFF;
+  position:absolute;
+  left:10px;
+  top:70px;
+  height:200px;
+  width:28px;
+  border:1px solid rgba(0,0,0,0.4);
+  border-radius:3px;
+  z-index:1000;
+  }
+.ui-opacity .handle {
+  position:absolute;
+  background:#404040;
+  left:0;
+  top:20px;
+  width:26px;
+  height:10px;
+  border-radius:1px;
+  cursor:pointer;
+  cursor:ns-resize;
+  }
+  .ui-opacity .handle:hover {
+    background:#303030;
+  }		
+		
+		
+		
+		
+		
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" style="font-family:courier; font-size:250%; margin-left: -5px" href="">Leaflet Opacity Example For Several Layers</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="map" class="map">
+        <div id="layer_selector" class="infobox">
+            <ul>
+                <li id="a1" class="button index selected" style="text-transform: none;">Humanitarian</li>
+                <li id="a2" class="button cleanup">OSM</li>
+                <li id="a3" class="button diesel">MapQuestOSM</li>
+                <li id="a4" class="button water">Thunderforest</li>
+                <li id="a5" class="button pesticide">HikeBike</li>
+            </ul>
+        </div>
+    </div>
+	
+<div id='control' class='ui-opacity'>
+  <div id='handle' class='handle'></div>
+</div>	
+	
+
+    <script src="assets/jquery-1.11.1.min.js"></script>
+    <script src="assets/leaflet-0.7.3/leaflet.js"></script>
+    <script src="assets/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+    <script src="assets/leaflet.boundary-canvas/BoundaryCanvas.js"></script>
+
+    <script>
+        var BingLayer = L.TileLayer.extend({
+            getTileUrl: function(tilePoint) {
+                this._adjustTilePoint(tilePoint);
+                return L.Util.template(this._url, {
+                    s: this._getSubdomain(tilePoint),
+                    q: this._quadKey(tilePoint.x, tilePoint.y, this._getZoomForUrl())
+                });
+            },
+            _quadKey: function(x, y, z) {
+                var quadKey = [];
+                for (var i = z; i > 0; i--) {
+                    var digit = '0';
+                    var mask = 1 << (i - 1);
+                    if ((x & mask) != 0) {
+                        digit++;
+                    }
+                    if ((y & mask) != 0) {
+                        digit++;
+                        digit++;
+                    }
+                    quadKey.push(digit);
+                }
+                return quadKey.join('');
+            }
+        });;
+
+        var testGeom = {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [5.9559111595, 45.8179931641],
+                    [5.9559111595, 47.808380127],
+                    [10.4920501709, 47.808380127],
+                    [10.4920501709, 45.8179931641],
+                    [5.9559111595, 45.8179931641]
+                ]
+            ]
+        };
+
+        var latLngGeom = [],
+            r, k;
+        for (r = 0; r < testGeom.coordinates.length; r++) {
+            latLngGeom[r] = [];
+            for (k = 0; k < testGeom.coordinates[r].length; k++) {
+                latLngGeom[r].push(new L.LatLng(testGeom.coordinates[r][k][1], testGeom.coordinates[r][k][0]));
+            }
+        };
+
+        var layerBA = new BingLayer('http://t{s}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=2732', {
+            maxZoom: 19,
+            subdomains: ['0', '1', '2', '3', '4'],
+            attribution: '&copy; <a href="http://bing.com/maps">Bing Maps</a>'
+        });
+
+        var layer01 = new L.TileLayer.boundaryCanvas('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            boundary: latLngGeom,
+            attribution: 'Tiles &copy; <a href="http://hot.openstreetmap.org/">Humanitarian OpenStreetMap Team</a>; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var layer02 = new L.TileLayer.boundaryCanvas('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            boundary: latLngGeom,
+            attribution: '&copy; Map Data <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+
+        var layer03 = new L.TileLayer.boundaryCanvas("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
+            subdomains: ["otile1", "otile2", "otile3", "otile4"],
+            boundary: latLngGeom,
+            attribution: '&copy; Tiles courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. &copy; Map data <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors'
+        });
+
+        var layer04 = new L.TileLayer.boundaryCanvas('http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png', {
+            boundary: latLngGeom,
+            attribution: '&copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a>, &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        });
+
+        var layer05 = new L.TileLayer.boundaryCanvas('http://{s}.hikebike.gpsies.com/{z}/{x}/{y}.png', {
+            boundary: latLngGeom,
+            attribution: '&copy; <a href="http://hikebikemap.org/">HikeBikeMap</a>, &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        });
+
+        var map = L.map('map', {
+            layers: [layerBA],
+            zoom: 8,
+            minZoom: 5,
+            maxZoom: 19,
+            center: [47, 8]
+        });
+
+
+		
+var overlay;		
+		
+		
+        $('.button').click(function() {
+            $('.button').removeClass('selected');
+            $(this).addClass('selected');
+
+            if ($(this).attr('id') === "a1") {
+                overlay = layer01.addTo(map);
+
+
+				
+				
+
+            } else {
+                map.removeLayer(layer01);
+            };
+
+            if ($(this).attr('id') === "a2") {
+                overlay = layer02.addTo(map);
+
+
+				
+				
+				
+            } else {
+                map.removeLayer(layer02);
+            };
+
+            if ($(this).attr('id') === "a3") {
+                overlay = layer03.addTo(map);
+
+
+				
+				
+				
+
+            } else {
+                map.removeLayer(layer03);
+            };
+
+            if ($(this).attr('id') === "a4") {
+                overlay = layer04.addTo(map);
+
+
+				
+				
+				
+
+            } else {
+                map.removeLayer(layer04);
+            };
+
+            if ($(this).attr('id') === "a5") {
+                overlay = layer05.addTo(map);
+
+
+				
+				
+				
+
+            } else {
+                map.removeLayer(layer05);
+            };
+
+            //console.log(map.hasLayer(layer02));
+            //console.log($(this).attr('id'));
+
+        });
+
+        /*		
+        		overlay = layer01.addTo(map);
+        		var range = document.getElementById('range');
+
+        		function clip() {
+        		  var nw = map.containerPointToLayerPoint([0, 0]),
+        			  se = map.containerPointToLayerPoint(map.getSize()),
+        			  clipX = nw.x + (se.x - nw.x) * range.value;
+        		  overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
+        		}
+
+        		range['oninput' in range ? 'oninput' : 'onchange'] = clip;
+        		map.on('move', clip);
+
+        */
+		
+        map.setView([47, 8.1], 8);
+		
+		
+		
+		
+		
+		
+var handle = document.getElementById('handle'),
+    start = false,
+    startTop;		
+		
+		
+document.onmousemove = function(e) {
+    if (!start) return;
+    // Adjust control.
+    handle.style.top = Math.max(-5, Math.min(195, startTop + parseInt(e.clientY, 10) - start)) + 'px';
+    // Adjust opacity.
+    overlay.setOpacity(1 - (handle.offsetTop / 200));
+};
+
+handle.onmousedown = function(e) {
+    // Record initial positions.
+    start = parseInt(e.clientY, 10);
+    startTop = handle.offsetTop - 5;
+    return false;
+};
+
+document.onmouseup = function(e) {
+    start = null;
+};		
+		
+		
+		
+		
+    </script>
+
+</body>
+
+</html>
