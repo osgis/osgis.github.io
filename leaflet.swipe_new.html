@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="assets/bootstrap-3.3.1/css/bootstrap.css">
     <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">
 
-
     <style type="text/css">
         html,
         body,
@@ -211,77 +210,50 @@
             center: [47, 8]
         });
 
-var overlay = layer01.addTo(map);
+        var overlay = layer01.addTo(map);
 
         $('.button').click(function() {
             $('.button').removeClass('selected');
             $(this).addClass('selected');
-
             if ($(this).attr('id') === "a1") {
                 overlay = layer01.addTo(map);
-
             } else {
                 map.removeLayer(layer01);
             };
-
             if ($(this).attr('id') === "a2") {
                 overlay = layer02.addTo(map);
-
-
-
             } else {
                 map.removeLayer(layer02);
             };
-
             if ($(this).attr('id') === "a3") {
                 overlay = layer03.addTo(map);
-
-
-
             } else {
                 map.removeLayer(layer03);
             };
-
             if ($(this).attr('id') === "a4") {
                 overlay = layer04.addTo(map);
-
-
-
             } else {
                 map.removeLayer(layer04);
             };
-
             if ($(this).attr('id') === "a5") {
                 overlay = layer05.addTo(map);
-
-
-
             } else {
                 map.removeLayer(layer05);
             };
-
-            //console.log(map.hasLayer(layer02));
-            //console.log($(this).attr('id'));
-
         });
 
-		
-		
-		
-                var range = document.getElementById('range');
 
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-		
-		
-		
-		
+        var range = document.getElementById('range');
+
+        function clip() {
+            var nw = map.containerPointToLayerPoint([0, 0]),
+                se = map.containerPointToLayerPoint(map.getSize()),
+                clipX = nw.x + (se.x - nw.x) * range.value;
+            overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
+        }
+        range['oninput' in range ? 'oninput' : 'onchange'] = clip;
+        map.on('move', clip);
+
         map.setView([47, 8.1], 8);
     </script>
 

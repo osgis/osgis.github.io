@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="assets/bootstrap-3.3.1/css/bootstrap.css">
     <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">
 
-
     <style type="text/css">
         html,
         body,
@@ -106,7 +105,7 @@
     <div id="map" class="map">
         <div id="layer_selector" class="infobox">
             <ul>
-                <li id="a1" class="button index" style="text-transform: none;">Humanitarian</li>
+                <li id="a1" class="button index selected" style="text-transform: none;">Humanitarian</li>
                 <li id="a2" class="button cleanup">OSM</li>
                 <li id="a3" class="button diesel">MapQuestOSM</li>
                 <li id="a4" class="button water">Thunderforest</li>
@@ -211,123 +210,50 @@
             center: [47, 8]
         });
 
+        var overlay = layer01.addTo(map);
 
         $('.button').click(function() {
             $('.button').removeClass('selected');
             $(this).addClass('selected');
-
             if ($(this).attr('id') === "a1") {
-                var overlay = layer01.addTo(map);
-
-                var range = document.getElementById('range');
-
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-
+                overlay = layer01.addTo(map);
             } else {
                 map.removeLayer(layer01);
             };
-
             if ($(this).attr('id') === "a2") {
-                var overlay = layer02.addTo(map);
-
-                var range = document.getElementById('range');
-
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-
+                overlay = layer02.addTo(map);
             } else {
                 map.removeLayer(layer02);
             };
-
             if ($(this).attr('id') === "a3") {
-                var overlay = layer03.addTo(map);
-
-                var range = document.getElementById('range');
-
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-
+                overlay = layer03.addTo(map);
             } else {
                 map.removeLayer(layer03);
             };
-
             if ($(this).attr('id') === "a4") {
-                var overlay = layer04.addTo(map);
-
-                var range = document.getElementById('range');
-
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-
+                overlay = layer04.addTo(map);
             } else {
                 map.removeLayer(layer04);
             };
-
             if ($(this).attr('id') === "a5") {
-                var overlay = layer05.addTo(map);
-
-                var range = document.getElementById('range');
-
-                function clip() {
-                    var nw = map.containerPointToLayerPoint([0, 0]),
-                        se = map.containerPointToLayerPoint(map.getSize()),
-                        clipX = nw.x + (se.x - nw.x) * range.value;
-                    overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-                }
-                range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-                map.on('move', clip);
-
+                overlay = layer05.addTo(map);
             } else {
                 map.removeLayer(layer05);
             };
-
-            //console.log(map.hasLayer(layer02));
-            //console.log($(this).attr('id'));
-
         });
 
-        /*		
-        		var overlay = layer01.addTo(map);
-        		var range = document.getElementById('range');
 
-        		function clip() {
-        		  var nw = map.containerPointToLayerPoint([0, 0]),
-        			  se = map.containerPointToLayerPoint(map.getSize()),
-        			  clipX = nw.x + (se.x - nw.x) * range.value;
-        		  overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
-        		}
+        var range = document.getElementById('range');
 
-        		range['oninput' in range ? 'oninput' : 'onchange'] = clip;
-        		map.on('move', clip);
+        function clip() {
+            var nw = map.containerPointToLayerPoint([0, 0]),
+                se = map.containerPointToLayerPoint(map.getSize()),
+                clipX = nw.x + (se.x - nw.x) * range.value;
+            overlay.getContainer().style.clip = 'rect(' + [nw.y, clipX, se.y, nw.x].join('px,') + 'px)';
+        }
+        range['oninput' in range ? 'oninput' : 'onchange'] = clip;
+        map.on('move', clip);
 
-        */
-		
         map.setView([47, 8.1], 8);
     </script>
 
