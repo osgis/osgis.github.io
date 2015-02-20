@@ -186,13 +186,11 @@
             layerBuildings.addData(data);
         });
 
-
-
         //layerBuildings.addTo(map);
 
 
 
-        var utfGrid = new L.UtfGrid('data/tiles/{z}/{x}/{y}.json', {
+        var utfGrid = new L.UtfGrid('data/utfgrid.tiles/{z}/{x}/{y}.json', {
             useJsonP: false
         });
 
@@ -208,20 +206,20 @@
             }
         });
 
-        /*
+        
         		utfGrid.on('mouseover', function (e) {
         			if (e.data) {
         				document.getElementById('hover').innerHTML = 'hover: ' + e.data.addr_house;
         			} else {
         				document.getElementById('hover').innerHTML = 'hover: nothing';
         			}
-        			//console.log('mouseover: ' + e.data);
+        			console.log('mouseover: ' + e.data);
         		});
         		
         		utfGrid.on('mouseout', function (e) {
-        			//console.log('mouseout: ' + e.data);
+        			console.log('mouseout: ' + e.data);
         		});
-        */
+        
 
 
         map.addLayer(utfGrid);
