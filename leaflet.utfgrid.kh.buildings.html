@@ -25,51 +25,35 @@
             width: 100%;
             overflow: hidden;
         }
-        
-        body {
-            padding-top: 50px;
-        }
-        
-        .navbar .navbar-brand {
-            font-weight: bold;
-            font-size: 25px;
-            #color: #EDDCC0;
-        }
-        
         #map {
             position: absolute;
             margin: 0px;
             padding: 0;
-            height: 95%;
+            height: 100%;
             width: 100%;
         }
         
-        .leaflet-control.enabled a {
-            background-color: yellow;
-        }
+		.info {
+			padding: 6px 8px;
+			font: 14px/16px Arial, Helvetica, sans-serif;
+			background: white;
+			background: rgba(255,255,255,0.8);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+		.info h4 {
+			margin: 0 0 5px;
+			color: #777;
+		}	
+		
+		
+		
+		
     </style>
 
 </head>
 
 <body>
-
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Leaflet. UTF-Grid</a>
-        </div>
-
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav" style="color: red">
-                <div id="hover"></div>
-                <div id="click"></div>
-            </ul>
-        </div>
-    </div>
 
     <div id="map"></div>
 
@@ -80,44 +64,7 @@
     <script type="text/javascript" src="assets/leaflet.utfgrid/leaflet.utfgrid.js"></script>
 
     <script>
-        /*
-                	var BingLayer = L.TileLayer.extend({
-                	    getTileUrl: function(tilePoint) {
-                	        this._adjustTilePoint(tilePoint);
-                	        return L.Util.template(this._url, {
-                	            s: this._getSubdomain(tilePoint),
-                	            q: this._quadKey(tilePoint.x, tilePoint.y, this._getZoomForUrl())
-                	        });
-                	    },
-                	    _quadKey: function(x, y, z) {
-                	        var quadKey = [];
-                	        for (var i = z; i > 0; i--) {
-                	            var digit = '0';
-                	            var mask = 1 << (i - 1);
-                	            if ((x & mask) != 0) {
-                	                digit++;
-                	            }
-                	            if ((y & mask) != 0) {
-                	                digit++;
-                	                digit++;
-                	            }
-                	            quadKey.push(digit);
-                	        }
-                	        return quadKey.join('');
-                	    }
-                	});
 
-                	var layerBingAerial = new BingLayer('http://t{s}.tiles.virtualearth.net/tiles/a{q}.jpeg?g=2732', {
-                	    maxZoom: 19,
-                	    subdomains: ['0', '1', '2', '3', '4'],
-                	    attribution: '&copy; <a href="http://bing.com/maps">Bing Maps</a>'
-                	});
-
-                	var layerMapBoxImagery = L.tileLayer('http://{s}.tiles.mapbox.com/v4/openstreetmap.map-inh7ifmo/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoib3BlbnN0cmVldG1hcCIsImEiOiJhNVlHd29ZIn0.ti6wATGDWOmCnCYen-Ip7Q', {
-                	    maxZoom: 17,
-                	    attribution: 'Data &copy; <a href="http://www.openstreetmap.org/copyright/en">OSM</a> contributors (ODbL), rendering <a href="http://giscience.uni-hd.de/" target="_blank">GIScience Research Group @ University of Heidelberg</a>'
-                	});
-                */
 
 
         var layerMapBoxOSM = new L.tileLayer('http://{s}.tiles.mapbox.com/v3/examples.map-20v6611k/{z}/{x}/{y}.png', {
@@ -125,17 +72,8 @@
             attribution: 'Map style &copy; <a href="https://www.mapbox.com/about/maps/">MapBox</a>; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
 
-        /*	
-        	var layerOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        	    maxZoom: 19,
-        	    attribution: '&copy; Map Data <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        	});
 
-        	var layerEmpty = L.tileLayer('assets/img/blank.png', {
-        	    maxZoom: 20
-        	});
-        	
-        */
+
 
         var map = new L.Map('map', {
             minZoom: 1,
@@ -149,66 +87,75 @@
         //------------------------------------------------------------------------------------------------
 
 
-        var layerBuildings = L.geoJson(null, {
-            style: function(feature) {
-                return {
-                    color: "#fd9a00",
-                    fill: true,
-                    opacity: 0.4,
-                };
-            },
-            onEachFeature: function(feature, layerbs) {
-                if (feature.properties) {
-                    var contentzone = "<table class='table table-striped table-bordered table-condensed'>" +
-                        "<tr><th>HN</th><td>" + feature.properties.addr_house + "</td></tr>"
-                    "<table>";
-                    layerbs.bindPopup(contentzone, {
-                        closeButton: true,
-                        minWidth: 120,
-                        minHeight: 25
-                    });
-                }
-                layerbs.on({
-                    mouseover: function(e) {
-                        var layerbs = e.target;
-                        layerbs.setStyle({
-                            weight: 3,
-                            color: "#00FFFF",
-                            opacity: 1
-                        });
-                        if (!L.Browser.ie && !L.Browser.opera) {
-                            layerbs.bringToFront();
-                        }
-                    },
-                    mouseout: function(e) {
-                        layerBuildings.resetStyle(e.target);
-                    }
-                });
-            }
-        });
-        $.getJSON("data/kharkov_buildings.geojson", function(data) {
-            layerBuildings.addData(data);
-        });
-
-        //layerBuildings.addTo(map);
-
-
 
         var utfGrid = new L.UtfGrid('data/utfgrid.tiles/{z}/{x}/{y}.json', {
-            useJsonP: false
+            useJsonP: false,
+			onEachFeature: onEachFeature
         });
+
+		
+		
+		var info = L.control();		
+		
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};	
+		
+		info.update = function (e) {
+			this._div.innerHTML = '<h4>Buildings Data</h4>' +  (e ?
+				'<b>' + e.data.id + '</b><br />' + e.data.id + ' people / mi<sup>2</sup>'
+				: 'Hover over a state');
+		};
+
+		info.addTo(map);		
+		
+
+
 
         utfGrid.on('click', function(e) {
-
-            console.log(e.data);
-
-
+           console.log(e.data.id);
             if (e.data) {
-                document.getElementById('click').innerHTML = 'click: ' + e.data.id;
+			info.update(e.data.id);
+			
+			
+                //document.getElementById('info').innerHTML = 'click: ' + e.data.id;
             } else {
-                document.getElementById('click').innerHTML = 'click: nothing';
+                //document.getElementById('info').innerHTML = 'click: nothing';
             }
         });
+
+
+
+
+
+		
+		function highlightFeature(e) {
+		console.log("sd");
+			var layer = e.target;
+			info.update(layer.feature.properties);
+		};		
+		
+		
+
+		function resetHighlight(e) {
+			info.update();
+		};
+		
+		
+		
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				mouseout: resetHighlight,
+				click: highlightFeature
+			});
+		};		
+		
+		
+/*		
+
 
 
         utfGrid.on('mouseover', function(e) {
@@ -217,12 +164,16 @@
             } else {
                 document.getElementById('hover').innerHTML = 'hover: nothing';
             }
-            console.log('mouseover: ' + e.data);
+            //console.log('mouseover: ' + e.data);
         });
 
+		
         utfGrid.on('mouseout', function(e) {
-            console.log('mouseout: ' + e.data);
+            //console.log('mouseout: ' + e.data);
         });
+
+*/
+
 
         map.addLayer(utfGrid);
 		
