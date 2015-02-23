@@ -78,6 +78,56 @@
 
         //------------------------------------------------------------------------------------------------
 
+		
+		
+
+        var layerBuildings = L.geoJson(null, {
+            style: function(feature) {
+                return {
+                    color: "#fd9a00",
+                    fill: true,
+                    opacity: 0.4,
+                };
+            },
+            onEachFeature: function(feature, layerbs) {
+                if (feature.properties) {
+                    var contentzone = "<table class='table table-striped table-bordered table-condensed'>" +
+                        "<tr><th>HN</th><td>" + feature.properties.addr_house + "</td></tr>"
+                    "<table>";
+                    layerbs.bindPopup(contentzone, {
+                        closeButton: true,
+                        minWidth: 120,
+                        minHeight: 25
+                    });
+                }
+                layerbs.on({
+                    mouseover: function(e) {
+                        var layerbs = e.target;
+                        layerbs.setStyle({
+                            weight: 3,
+                            color: "#00FFFF",
+                            opacity: 1
+                        });
+                        if (!L.Browser.ie && !L.Browser.opera) {
+                            layerbs.bringToFront();
+                        }
+                    },
+                    mouseout: function(e) {
+                        layerBuildings.resetStyle(e.target);
+                    }
+                });
+            }
+        });
+        $.getJSON("data/kharkov_buildings.geojson", function(data) {
+            layerBuildings.addData(data);
+        });
+
+        //layerBuildings.addTo(map);		
+		
+		
+		
+		
+		
         var utfGrid = new L.UtfGrid('data/utfgrid.tiles/{z}/{x}/{y}.json', {
             useJsonP: false
         });
@@ -95,7 +145,7 @@
 			for(var key in jsondata) {
 				 var id = jsondata["id"];
 				 var bl = jsondata["building_l"];
-				 this._div.innerHTML = '<h4>&nbspBuildings Data&nbsp&nbsp&nbsp&nbsp&nbsp</h4>' +  (id ? '<b>' + id + '</b><br/>' + bl : 'Hover over a building');
+				 this._div.innerHTML = '<h4>&nbspBuildings Data&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</h4>' +  (id ? '<b>' + "osmid: " + id + '</b><br/>' + "floor: " + bl : 'Hover over a building');
 			};
 		};
 		
