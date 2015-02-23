@@ -65,15 +65,10 @@
 
     <script>
 
-
-
         var layerMapBoxOSM = new L.tileLayer('http://{s}.tiles.mapbox.com/v3/examples.map-20v6611k/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: 'Map style &copy; <a href="https://www.mapbox.com/about/maps/">MapBox</a>; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         });
-
-
-
 
         var map = new L.Map('map', {
             minZoom: 1,
@@ -81,103 +76,48 @@
             layers: [layerMapBoxOSM]
         }).setView([50.0068, 36.2319], 17);
 
-
-
-
         //------------------------------------------------------------------------------------------------
 
-
-
         var utfGrid = new L.UtfGrid('data/utfgrid.tiles/{z}/{x}/{y}.json', {
-            useJsonP: false,
-			onEachFeature: onEachFeature
+            useJsonP: false
         });
 
 		
-		
 		var info = L.control();		
-		
 		info.onAdd = function (map) {
 			this._div = L.DomUtil.create('div', 'info');
 			this.update();
 			return this._div;
 		};	
-		
-		info.update = function (e) {
-			this._div.innerHTML = '<h4>Buildings Data</h4>' +  (e ?
-				'<b>' + e.data.id + '</b><br />' + e.data.id + ' people / mi<sup>2</sup>'
-				: 'Hover over a state');
-		};
 
+		
+		info.update = function (jsondata) {
+			for(var key in jsondata) {
+				 var id = jsondata["id"];
+				 var bl = jsondata["building_l"];
+				 this._div.innerHTML = '<h4>&nbspBuildings Data&nbsp&nbsp&nbsp&nbsp&nbsp</h4>' +  (id ? '<b>' + id + '</b><br/>' + bl : 'Hover over a building');
+			};
+		};
+		
 		info.addTo(map);		
-		
-
-
-
-        utfGrid.on('click', function(e) {
-           console.log(e.data.id);
-            if (e.data) {
-			info.update(e.data.id);
-			
-			
-                //document.getElementById('info').innerHTML = 'click: ' + e.data.id;
-            } else {
-                //document.getElementById('info').innerHTML = 'click: nothing';
-            }
-        });
-
-
-
-
 
 		
-		function highlightFeature(e) {
-		console.log("sd");
-			var layer = e.target;
-			info.update(layer.feature.properties);
-		};		
-		
-		
-
-		function resetHighlight(e) {
-			info.update();
-		};
-		
-		
-		
-		function onEachFeature(feature, layer) {
-			layer.on({
-				mouseover: highlightFeature,
-				mouseout: resetHighlight,
-				click: highlightFeature
-			});
-		};		
-		
-		
-/*		
-
-
-
         utfGrid.on('mouseover', function(e) {
             if (e.data) {
-                document.getElementById('hover').innerHTML = 'hover: ' + e.data.id;
+				info.update(e.data);
             } else {
-                document.getElementById('hover').innerHTML = 'hover: nothing';
+				info.update();	
             }
-            //console.log('mouseover: ' + e.data);
-        });
-
-		
+        });		
+			
+			
         utfGrid.on('mouseout', function(e) {
-            //console.log('mouseout: ' + e.data);
-        });
-
-*/
-
-
+			info.update();
+        });		
+			
+			
         map.addLayer(utfGrid);
-		
-		
+				
     </script>
 </body>
 
