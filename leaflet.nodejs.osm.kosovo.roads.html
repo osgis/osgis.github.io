@@ -10,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="shortcut icon" sizes="25x25" href="assets/img/icon.png">
-    <title>Leaflet. MMT-Vector-Tiles</title>
+    <title>Leaflet. OSM geoJSON Tile Server on NodeJS</title>
 
     <link rel="stylesheet" href="assets/bootstrap-3.3.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">
@@ -55,7 +55,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Leaflet. MMT-Vector-Tiles</a>
+            <a class="navbar-brand" href="#">Leaflet. OSM geoJSON Tile Server on NodeJS</a>
         </div>
 
         <div class="navbar-collapse collapse">
@@ -151,7 +151,7 @@
         //var geojsonURL = 'http://polymaps.appspot.com/state/{z}/{x}/{y}.json';
         //var geojsonURL = 'http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json';
        // var geojsonURL = 'data/mmt.vector.tiles/{z}/{x}/{y}.geojson';
-        var geojsonURL = 'data/roads.vector.tiles/{z}/{x}/{y}.json';
+        var geojsonURL = 'data/roads.vector.tiles.nodejs/{z}/{x}/{y}.json';
 
         var style = {
             "clickable": true,
@@ -167,11 +167,11 @@
 // Make the river overlay layer, vector tiles from our TileStache/Gunicorn server
 
         var geojsonTileLayer = new L.TileLayer.GeoJSON(geojsonURL, {
-            clipTiles: true,
-                 unique: function(feature) {
+            clipTiles: true
+                /* unique: function(feature) {
                      return feature.id;
                      console.log(feature.id);
-                 }
+                 }*/
         }, {
             style: style,
             onEachFeature: function(feature, layer) {
