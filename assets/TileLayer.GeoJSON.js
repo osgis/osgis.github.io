@@ -39,7 +39,7 @@ L.TileLayer.Ajax = L.TileLayer.extend({
         this._requests = [];
     },
     _update: function () {
-        if (this._map._panTransition && this._map._panTransition._inProgress) { return; }
+        if (this._map && this._map._panTransition && this._map._panTransition._inProgress) { return; }
         if (this._tilesToLoad < 0) { this._tilesToLoad = 0; }
         L.TileLayer.prototype._update.apply(this, arguments);
     }
@@ -104,7 +104,12 @@ L.TileLayer.GeoJSON = L.TileLayer.Ajax.extend({
     _clipLayerToTileBoundary: function (layer, tilePoint) {
         // Only perform SVG clipping if the browser is using SVG
         if (!L.Path.SVG) { return; }
+        if (!this._map) { return; }
 
+        if (!this._map._pathRoot) {
+            this._map._pathRoot = L.Path.prototype._createElement('svg');
+            this._map._panes.overlayPane.appendChild(this._map._pathRoot);
+        }
         var svg = this._map._pathRoot;
 
         // create the defs container if it doesn't exist
@@ -200,6 +205,7 @@ L.TileLayer.GeoJSON = L.TileLayer.Ajax.extend({
                 return this;
             }
 
+            incomingLayer.feature = L.GeoJSON.asFeature(geojson);
             // Add the incoming Layer to existing key's GeometryCollection
             if (key in this._keyLayers) {
                 parentLayer = this._keyLayers[key];
@@ -207,7 +213,6 @@ L.TileLayer.GeoJSON = L.TileLayer.Ajax.extend({
             }
             // Convert the incoming GeoJSON feature into a new GeometryCollection layer
             else {
-                incomingLayer.feature = L.GeoJSON.asFeature(geojson);
                 this._keyLayers[key] = incomingLayer;
             }
         }

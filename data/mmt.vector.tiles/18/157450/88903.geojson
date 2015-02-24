@@ -1,1 +1,1 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[36.2261123657227,50.0013427244668],[36.2260876,50.0013772999887],[36.2261123657227,50.0014241042015],[36.2261123657227,50.0013427244668]]]},"properties":{"gid":425}}]}
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[36.2261123657227,50.0013427244668],[36.2260876,50.0013772999887],[36.2261123657227,50.0014241042015],[36.2261123657227,50.0013427244668]]]},"properties":{"gid":425,"addr_house":null}}]}
