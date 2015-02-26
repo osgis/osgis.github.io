@@ -50,8 +50,8 @@
         }).addTo(map);
 
 
-        var rosreestr = new L.TileLayer.EsriRest("http://a.maps.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer", {
-            //subdomains: "abcd",
+        var rosreestr = new L.TileLayer.EsriRest("http://{s}.maps.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer", {
+            subdomains: "abcd",
             layers: '0,8,17,21',
             transparent: true
         }).addTo(map);
