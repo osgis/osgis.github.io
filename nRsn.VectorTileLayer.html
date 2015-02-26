@@ -70,6 +70,10 @@
         var geojsonURL = "data/mmt.vector.tiles/{z}/{x}/{y}.geojson";
         var dynamicLayer = new L.VectorTileLayer(geojsonURL, {
             clipTiles: true,
+            unique: function(feature) {
+                return feature.properties.gid;
+                console.log(feature.properties.gid);
+            },
             minZoom: 15
         }, {
             style: style,

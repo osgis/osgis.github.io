@@ -74,7 +74,7 @@
     <script src="assets/jquery-1.11.2.min.js"></script>
     <script src="assets/bootstrap-3.3.2/js/bootstrap.min.js"></script>
     <script src="assets/leaflet-0.7.3/leaflet-src.js"></script>
-	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<!--<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>-->
     <script type="text/javascript" src="assets/TileLayer.GeoJSON.js"></script>
 
     <script>
@@ -167,11 +167,11 @@
 // Make the river overlay layer, vector tiles from our TileStache/Gunicorn server
 
         var geojsonTileLayer = new L.TileLayer.GeoJSON(geojsonURL, {
-            clipTiles: true
-                /* unique: function(feature) {
+            clipTiles: true,
+                 unique: function(feature) {
                      return feature.id;
                      console.log(feature.id);
-                 }*/
+                 }
         }, {
             style: style,
             onEachFeature: function(feature, layer) {
