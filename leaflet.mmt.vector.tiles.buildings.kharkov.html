@@ -73,7 +73,10 @@
     </div>
 
     <div id="map"></div>
-
+	
+    <script>
+        L_PREFER_CANVAS = true;
+    </script>	
     <script src="assets/jquery-1.11.2.min.js"></script>
     <script src="assets/bootstrap-3.3.2/js/bootstrap.min.js"></script>
     <script src="assets/leaflet-0.7.3/leaflet.js"></script>
@@ -159,7 +162,7 @@
 
         //var geojsonURL = 'http://polymaps.appspot.com/state/{z}/{x}/{y}.json';
         //var geojsonURL = 'http://vector.mapzen.com/osm/buildings/{z}/{x}/{y}.json';
-        var geojsonURL = 'data/mmt.vector.tiles/{z}/{x}/{y}.geojson';
+        var geojsonURL = 'data/mmt.vector.tiles.kharkov.buildings/{z}/{x}/{y}.geojson';
 
         var geojsonTileLayer = new L.TileLayer.GeoJSON(geojsonURL, {
             clipTiles: true,
