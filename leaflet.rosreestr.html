@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet ESRI REST Example</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Leaflet. Rosreestr</title>
+	
+    <link rel="stylesheet" href="assets/bootstrap-3.3.2/css/bootstrap.min.css">	
+    <link rel="stylesheet" href="assets/leaflet-0.7.3/leaflet.css">	
+	
+    <style type="text/css">
+        html,
+        body,
+        #map {
+            margin: 0px;
+            height: 100%;
+            width: 100%;
+        }
+		
+	.leaflet-popup-content {
+		margin-top: 5px;
+		margin-bottom: 5px;
+		margin-left: 5px;
+		margin-right: 5px;
+	}
+	
+    </style>	
+	
+</head>
+<body>
+<div id="map"></div>
+
+    <script src="assets/jquery-1.11.2.min.js"></script>
+    <script src="assets/bootstrap-3.3.2/js/bootstrap.min.js"></script>
+    <script src="assets/leaflet-0.7.3/leaflet-src.js"></script>
+	<script src="assets/TileLayer.EsriRest.js"></script>
+	<script src="assets/date.format.js"></script>
+	<script src="assets/rosreestr.js"></script>
+
+<!--
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+-->
+
+<script>
+
+    var map = L.map('map').setView([50.59664,36.59205], 17);
+
+	
+	
+    L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        subdomains: "1234",
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, Imagery © <a href="http://open.mapquest.com">MapQuest</a>'
+    }).addTo(map);
+	
+	
+    var rosreestr = new L.TileLayer.EsriRest("http://a.maps.rosreestr.ru/arcgis/rest/services/Cadastre/Cadastre/MapServer", {
+        //subdomains: "abcd",
+		layers: '21',
+        transparent: true
+    }).addTo(map);
+
+    var popup = L.popup();
+
+/*	
+    function onMapClick(e) {
+        var clickedPoint = new L.Point(e.latlng.lng, e.latlng.lat);
+            rosreestrURL = rosreestr.getIdentifyUrl(clickedPoint, {showLayers: '21'});
+
+        $.ajax({
+            type: "GET",
+            url: rosreestrURL,
+            dataType: "jsonp",
+            success: function (data) {
+			
+			
+                var outputText = "No Data Returned";
+				
+				console.log(data);
+				
+                if (data && data.results.length) {
+                    outputText = "";
+                    console.log(data);
+
+                    for (result in data.results) {
+                        outputText += '<b>';
+                        outputText += data.results[result].layerName;
+                        outputText += '</b>';
+                        outputText += ":&nbsp;&nbsp;";
+                        outputText += data.results[result].value;
+
+                        if (data.results[result].attributes) {
+                            outputText += "<p style='font-size: 10px;'>";
+                            for (attribute in data.results[result].attributes) {
+                                outputText += '&nbsp;&nbsp;&nbsp;&nbsp;<b>';
+                                outputText += attribute;
+                                outputText += '</b>';
+                                outputText += ":&nbsp;&nbsp;";
+                                outputText += data.results[result].attributes[attribute];
+                                outputText += "<br/>";
+                            }
+                            outputText += "</p>";
+                        }
+                        outputText += "<br/>";
+                    }
+                }
+                popup.setLatLng(e.latlng).setContent(outputText).openOn(map);
+            }
+        });
+
+    }
+
+    map.on('click', onMapClick);
+*/
+
+
+var ruCadastreIdentify = new L.RuCadastreIdentify({
+    template: function(identify_data, find_data) {
+        var identify_attr = identify_data.results[0].attributes,
+            layerId = identify_data.results[0].layerId,
+            find_attr = find_data ? find_data.features[0].attributes : null;
+        return '' + (layerId <= 3 ? '' + '<div><b>Кадастровый номер</b>: ' + identify_attr['Кадастровый номер земельного участка'] + '</div>' + '<ul class="nav nav-tabs" style="width:300px;">' + '<li class="active"><a href="#rucadinfo" onclick="setActiveTab(event)">Информация</a></li>' + '<li><a href="#rucadsrv" onclick="setActiveTab(event)">Услуги</a></li>' + '</ul>' + '<div class="tab-content">' + '<div class="tab-pane active" id="rucadinfo" style="height:160px; overflow:auto">' + '<div><b>Кадастровая единица</b>: ' + identify_data.results[0].layerName + '</div>' + (find_data ? '' + '<div><b>Адрес</b>: ' + find_attr['OBJECT_ADDRESS'] + '</div>' + '<div><b>Декларированная площадь</b>: ' + find_attr['AREA_VALUE'] + ' кв. м</div>' + '<div><b>Кадастровая стоимость</b>: ' + find_attr['CAD_COST'] + ' руб.</div>' + '<div><b>Дата постановки на учет</b>: ' + (new Date(find_attr['DATE_CREATE'])).format("dd.mm.yyyy") + '</div>' + '' : '') + '<div><b>Категория земель</b>: ' + identify_attr['Категория земель (код)'] + '</div>' + '<div><b>Статус земельного участка</b>: ' + identify_attr['Статус земельного участка (код)'] + '</div>' + '</div>' + '<div class="tab-pane" id="rucadsrv" style="height:150px; overflow:auto">' + '<a href="https://rosreestr.ru/wps/portal/cc_information_online?KN=' + identify_attr['Кадастровый номер земельного участка'] + '"  target="_blank">Справочная информация об объекте недвижимости в режиме онлайн</a><br/>' + '<a href="https://rosreestr.ru/wps/portal/cc_gkn_form_new?KN=' + identify_attr['Кадастровый номер земельного участка'] + '&objKind=002001001000"  target="_blank">Запрос о предоставлении сведений ГКН</a><br/>' + '<a href="https://rosreestr.ru/wps/portal/cc_egrp_form_new?KN=' + identify_attr['Кадастровый номер земельного участка'] + '&objKind=002001001000"  target="_blank">Запрос о предоставлении сведений ЕГРП</a><br/>' + '</div>' + '</div>' + '' : '' + '') + (layerId > 3 ? '' + '<div><b>Кадастровый номер</b>: ' + identify_attr['Кадастровый номер'] + '</div>' + '<div><b>Кадастровая единица</b>: ' + identify_data.results[0].layerName + '</div>' + (layerId >= 12 ? '' + '<div><b>Наименование</b>: ' + identify_attr['Наименование'] + '</div>' + '' : '') + (layerId < 12 ? '' + '<div><b>Категория земель</b>: ' + identify_attr['Категория земель (код)'] + '</div>' + '<div><b>Вид разрешенного использования</b>: ' + identify_attr['Вид разрешенного использования (код)'] + '</div>' + '' : '') + '' : '');
+    }
+});	
+	
+	
+map.addControl(ruCadastreIdentify);
+	
+function setActiveTab(e) {
+    e.preventDefault();
+    $(e.target).tab('show');
+};	
+	
+</script>
+</body>
+</html>
+
