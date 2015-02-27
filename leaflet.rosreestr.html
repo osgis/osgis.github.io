@@ -19,7 +19,6 @@
             height: 100%;
             width: 100%;
         }
-        
         .leaflet-popup-content {
             margin-top: 5px;
             margin-bottom: 5px;
@@ -56,57 +55,6 @@
             transparent: true
         }).addTo(map);
 
-        var popup = L.popup();
-
-		
-        /*	
-            function onMapClick(e) {
-                var clickedPoint = new L.Point(e.latlng.lng, e.latlng.lat);
-                    rosreestrURL = rosreestr.getIdentifyUrl(clickedPoint, {showLayers: '21'});
-
-                $.ajax({
-                    type: "GET",
-                    url: rosreestrURL,
-                    dataType: "jsonp",
-                    success: function (data) {
-
-                        var outputText = "No Data Returned";
-        				
-        				console.log(data);
-        				
-                        if (data && data.results.length) {
-                            outputText = "";
-                            console.log(data);
-
-                            for (result in data.results) {
-                                outputText += '<b>';
-                                outputText += data.results[result].layerName;
-                                outputText += '</b>';
-                                outputText += ":&nbsp;&nbsp;";
-                                outputText += data.results[result].value;
-
-                                if (data.results[result].attributes) {
-                                    outputText += "<p style='font-size: 10px;'>";
-                                    for (attribute in data.results[result].attributes) {
-                                        outputText += '&nbsp;&nbsp;&nbsp;&nbsp;<b>';
-                                        outputText += attribute;
-                                        outputText += '</b>';
-                                        outputText += ":&nbsp;&nbsp;";
-                                        outputText += data.results[result].attributes[attribute];
-                                        outputText += "<br/>";
-                                    }
-                                    outputText += "</p>";
-                                }
-                                outputText += "<br/>";
-                            }
-                        }
-                        popup.setLatLng(e.latlng).setContent(outputText).openOn(map);
-                    }
-                });
-            }
-            map.on('click', onMapClick);
-        */
-
         var ruCadastreIdentify = new L.RuCadastreIdentify({
             template: function(identify_data, find_data) {
                 var identify_attr = identify_data.results[0].attributes,
@@ -116,13 +64,13 @@
             }
         });
 
-
         map.addControl(ruCadastreIdentify);
 
         function setActiveTab(e) {
             e.preventDefault();
             $(e.target).tab('show');
         };
+		
     </script>
 </body>
 
