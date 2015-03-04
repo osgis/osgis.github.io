@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Easy example | CartoDB.js</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+    <style>
+      html, body, #map {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.11/themes/css/cartodb.css" />
+    <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
+
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <!-- include cartodb.js library -->
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/3.11/cartodb.js"></script>
+    <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
+
+  <script>
+    var map = new L.Map('map', {
+      zoomControl: false,
+      center: [43, 0],
+      zoom: 3
+    });
+
+    var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+    });
+    map.addLayer(layer);
+
+    var drawControl = new L.Control.Draw({
+      position: 'topright',
+      draw: {
+        polyline: true,
+        polygon: false,
+        rectangle: false,
+        circle: false,
+        marker: false
+      }
+    });
+    map.addControl(drawControl);
+
+    cartodb.createLayer(map, 'http://hast.cartodb.com/api/v2/viz/2924175a-c1cb-11e4-a600-0e0c41326911/viz.json')
+      .addTo(map)
+      .on('done', function(layer) {
+        // Keep track of all draw objects
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        map.on('draw:created', function (e) {
+          var type = e.layerType,
+            draw_layer = e.layer;
+
+          // Show the polygon on the map
+          drawnItems.addLayer(draw_layer);
+
+          // Get the coordinates of the polygon we just drew
+          var poly = draw_layer.getLatLngs();
+          var sql_poly = [];
+          for (i in poly){
+            sql_poly.push("CDB_LatLng("+poly[i].lat+","+poly[i].lng+")")
+          }
+
+          var line = "ST_MakeLine(Array["+sql_poly.join()+"])";
+          var username = prompt("Please enter your name");
+
+          if (username != null) {
+            var sql = "INSERT INTO leaflet_data (username, the_geom) VALUES ('"+username+"', ST_SetSRID(ST_AsText("+line+"),4326))&api_key=b047b69708b0b5c661c4d0dc228dc78688055388";
+
+            $.ajax({
+              url: 'https://hast.cartodb.com/api/v2/sql?q='+sql,
+              success: function(responseData, textStatus, jqXHR) {
+                console.log("Data saved");
+              },
+              error: function (responseData, textStatus, errorThrown) {
+                console.log("Problem saving the data");
+              }
+            });
+          }
+        });
+      });
+  </script>
+</body>
+</html>
