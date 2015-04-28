@@ -19,18 +19,44 @@
             height: 100%;
             width: 100%;
         }
+        
         .leaflet-popup-content {
             margin-top: 5px;
             margin-bottom: 5px;
             margin-left: 5px;
             margin-right: 5px;
         }
+        
+        .input-append {
+            position: absolute;
+            left: 0;
+            top: 0;
+            left: 1150px;
+            background-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 5px #BBB;
+            padding: 3px 3px;
+        }
     </style>
 
 </head>
 
 <body>
+
     <div id="map"></div>
+
+    <div class="input-append">
+        <input class="span2" id="geocodeinput" type="text">
+        <div class="btn-group">
+            <button id="geocodebutton" class="btn" onclick="geocode()">OSM (address)</button>
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="#" onclick="setProvider('osm', event)">OSM (address)</a></li>
+                <li><a href="#" onclick="setProvider('rucadastre', event)">RuCadastre (parcel numbers)</a></li>
+            </ul>
+        </div>
+    </div>
 
     <script src="assets/jquery-1.11.2.min.js"></script>
     <script src="assets/bootstrap-3.3.2/js/bootstrap.min.js"></script>
@@ -38,6 +64,7 @@
     <script src="assets/TileLayer.EsriRest.js"></script>
     <script src="assets/date.format.js"></script>
     <script src="assets/rosreestr.js"></script>
+    <script src="assets/leaflet.geocoding.js"></script>
 
     <script>
         var map = L.map('map').setView([50.59664, 36.59205], 17);
@@ -70,7 +97,37 @@
             e.preventDefault();
             $(e.target).tab('show');
         };
-		
+
+
+        var geocoding = new L.Geocoding({
+            apikeys: {
+                'bing': 'Anqm0F_JjIZvT0P3abS6KONpaBaKuTnITRrnYuiJCE0WOhH6ZbE4DzeT6brvKVR5',
+                'mapquest': 'Kmjtd%7Cluua2qu7n9%2C7a%3Do5-lzbgq',
+                'nokia': 'HGHGJHgdbndbmbsdf7675wefdvvdsnb'
+            },
+            providers: {}
+        });
+
+        map.addControl(geocoding);
+
+        $('#geocodeinput').on('keydown', function(e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                geocoding.geocode($('#geocodeinput').val())
+            }
+        });
+
+        function geocode() {
+            geocoding.geocode($("#geocodeinput").val());
+        };
+
+        function setProvider(provider, e) {
+            e.preventDefault();
+            $('#geocodebutton').text(e.target.innerHTML);
+            geocoding.setOptions({
+                provider: provider
+            })
+        };
     </script>
 </body>
 
