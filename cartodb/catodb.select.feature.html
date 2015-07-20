@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leaflet select features example | CartoDB.js</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <style>
+        html,
+        body,
+        #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <!-- include cartodb.js library -->
+    <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
+
+    <script>
+        function main() {
+
+            var map = new L.Map('map', {
+                zoomControl: true,
+                center: [51.083, 28.189],
+                zoom: 10
+            });
+
+            var sql = new cartodb.SQL({
+                user: 'hast',
+                format: 'geojson'
+            });
+            var polygon;
+            var arrayData = [];
+
+            function showFeature(cartodb_id) {
+                sql.execute("SELECT the_geom, name FROM topo250 WHERE cartodb_id = {{cartodb_id}}", {
+                    cartodb_id: cartodb_id
+                }).done(function(geojson) {
+					
+					/*	
+					if (geojson.features[0].properties.selected == undefined) {
+						geojson.features[0].properties.selected = true;	
+						console.log('selected');
+					} 
+					*/
+					
+					// get name for unselected feature
+					console.log(geojson.features[0].properties.name);
+
+					if (polygon) {
+                        map.removeLayer(polygon);
+                    }
+
+                    arrayData.push(geojson);
+
+                    polygon = L.geoJson(arrayData, {
+                        style: {
+                            weight: 3,
+                            color: "#00FFFF",
+                            opacity: 1,
+                            fillOpacity: 0.1
+                        },
+                        onEachFeature: function(feature, layer_topo250) {
+
+                            layer_topo250.on({
+                                click: function(e) {
+                                    var layer_topo250 = e.target;
+									
+									// get name for selected feature
+                                    console.log(layer_topo250.feature.properties.name);
+                                }
+                            });
+                        }
+                    });
+
+                    polygon.addTo(map);
+
+                });
+            };
+
+            L.tileLayer('http://tile.stamen.com/toner/{z}/{x}/{y}.png', {
+                attribution: 'Stamen'
+            }).addTo(map);
+
+
+            cartodb.createLayer(map, 'https://hast.cartodb.com/api/v2/viz/81fbbb36-2eb7-11e5-96bd-0e018d66dc29/viz.json', {
+                    infowindow: false
+                })
+                .addTo(map)
+                .on('done', function(layer) {
+
+                    layer.setInteraction(true);
+
+                    layer.on('featureClick', function(e, pos, latlng, data) {
+                        showFeature(data.cartodb_id)
+                    });
+
+                }).on('error', function() {
+                    cartodb.log.log("some error occurred");
+                });
+        }
+
+        // you could use $(window).load(main);
+        window.onload = main;
+    </script>
+</body>
+
+</html>
